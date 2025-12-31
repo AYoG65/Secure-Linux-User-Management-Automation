@@ -1,0 +1,22 @@
+# Security Notes
+
+## Threats Mitigated
+
+- Brute-force SSH attacks
+- Credential stuffing
+- Root account compromise
+- Unauthorized privilege escalation
+
+## Hardening Techniques Used
+
+- SSH key authentication
+- Password locking
+- Root login disabled
+- Proper file permissions
+- Restricted sudo configuration
+
+## Compliance Alignment
+
+- CIS Linux Benchmarks
+- SOC2 access control principles
+- Cloud security best practices
