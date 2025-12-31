@@ -1,0 +1,75 @@
+Secure_Admin_Setup
+
+#!/bin/bash
+
+# ================================
+# Secure Admin User Setup Script
+# ================================
+
+set -e  # Exit immediately if a command fails
+
+ADMIN_USER="devopsadmin"
+SSH_DIR="/home/$ADMIN_USER/.ssh"
+SSH_KEY_FILE="$SSH_DIR/authorized_keys"
+
+echo "[+] Starting secure admin setup..."
+
+# --------------------------------
+# 1. Create non-root admin user
+# --------------------------------
+if id "$ADMIN_USER" &>/dev/null; then
+    echo "[!] User $ADMIN_USER already exists"
+else
+    echo "[+] Creating user: $ADMIN_USER"
+    useradd -m -s /bin/bash "$ADMIN_USER"
+fi
+
+# --------------------------------
+# 2. Configure sudo access
+# --------------------------------
+echo "[+] Granting sudo access to $ADMIN_USER"
+usermod -aG sudo "$ADMIN_USER"
+
+# Optional: passwordless sudo (comment out if undesired)
+echo "$ADMIN_USER ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$ADMIN_USER
+chmod 440 /etc/sudoers.d/$ADMIN_USER
+
+# --------------------------------
+# 3. Enforce SSH key authentication
+# --------------------------------
+echo "[+] Setting up SSH key authentication"
+
+mkdir -p "$SSH_DIR"
+chmod 700 "$SSH_DIR"
+touch "$SSH_KEY_FILE"
+chmod 600 "$SSH_KEY_FILE"
+chown -R "$ADMIN_USER:$ADMIN_USER" "$SSH_DIR"
+
+echo ">>> Paste the public SSH key for $ADMIN_USER:"
+read -r SSH_KEY
+echo "$SSH_KEY" >> "$SSH_KEY_FILE"
+
+# --------------------------------
+# 4. Disable password login for admin user
+# --------------------------------
+echo "[+] Disabling password login for $ADMIN_USER"
+passwd -l "$ADMIN_USER"
+
+# --------------------------------
+# 5. Disable root SSH login
+# --------------------------------
+echo "[+] Disabling direct root SSH login"
+
+SSHD_CONFIG="/etc/ssh/sshd_config"
+
+sed -i 's/^#\?PermitRootLogin.*/PermitRootLogin no/' "$SSHD_CONFIG"
+sed -i 's/^#\?PasswordAuthentication.*/PasswordAuthentication no/' "$SSHD_CONFIG"
+sed -i 's/^#\?PubkeyAuthentication.*/PubkeyAuthentication yes/' "$SSHD_CONFIG"
+
+# --------------------------------
+# 6. Restart SSH service
+# --------------------------------
+echo "[+] Restarting SSH service"
+systemctl restart sshd
+
+echo "[✓] Secure admin setup completed successfully"
