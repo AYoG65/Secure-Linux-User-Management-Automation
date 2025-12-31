@@ -1,0 +1,164 @@
+Architecture Overview
+Purpose
+
+This project implements a secure Linux access architecture designed to eliminate common attack vectors while preserving operational usability for administrators.
+
+The architecture replaces default, insecure patterns (root SSH access, password authentication) with a hardened, least-privilege model suitable for production and cloud environments.
+
+High-Level Access Flow
+┌────────────────┐
+│ Administrator  │
+│ SSH Client     │
+└───────┬────────┘
+        │ SSH (Public Key)
+┌───────▼────────────┐
+│ devopsadmin        │
+│ Non-root admin     │
+│ Limited privileges │
+└───────┬────────────┘
+        │ sudo (audited)
+┌───────▼───────┐
+│ root           │
+│ No SSH access  │
+└───────────────┘
+
+Core Architectural Decisions
+1. No Direct Root Access
+
+Decision:
+Root login over SSH is completely disabled.
+
+Why:
+
+Root is a high-value target
+
+SSH root access bypasses accountability
+
+Violates least-privilege principles
+
+Outcome:
+All administrative actions are performed via a non-root user and escalated only when necessary.
+
+2. Non-Root Administrative User
+
+Decision:
+All human access occurs through a dedicated non-root admin user (devopsadmin).
+
+Why:
+
+Enforces identity-based access
+
+Enables auditing and accountability
+
+Reduces blast radius of compromise
+
+Outcome:
+Root access becomes a controlled capability, not a default state.
+
+3. SSH Key-Only Authentication
+
+Decision:
+Password authentication is fully disabled.
+
+Why:
+
+Passwords are vulnerable to brute force and reuse
+
+SSH keys provide cryptographic authentication
+
+Industry standard for cloud infrastructure
+
+Outcome:
+Only holders of authorized private keys can access the system.
+
+4. Explicit Privilege Escalation (sudo)
+
+Decision:
+Administrative privileges are granted via sudo, not by default user context.
+
+Why:
+
+Aligns with least-privilege model
+
+Enables logging of privileged actions
+
+Prevents accidental system damage
+
+Outcome:
+Privilege elevation is intentional, traceable, and reversible.
+
+5. File System Permission Hardening
+
+Decision:
+Strict permissions are enforced on SSH directories and key files.
+
+Why:
+
+Prevents key leakage
+
+Required by OpenSSH for key validity
+
+Protects against local privilege abuse
+
+Outcome:
+SSH authentication remains secure and tamper-resistant.
+
+Threat Model
+Threats Addressed
+Threat	Mitigation
+Brute-force SSH attacks	Password authentication disabled
+Root account compromise	Root SSH login disabled
+Credential stuffing	SSH keys only
+Unauthorized privilege escalation	Controlled sudo access
+Lateral movement	Identity-based access separation
+Design Principles Applied
+
+Least Privilege
+
+Defense in Depth
+
+Explicit Trust Boundaries
+
+Fail-Safe Defaults
+
+Auditability
+
+Production & Cloud Readiness
+
+This architecture aligns with:
+
+CIS Linux Benchmarks
+
+SOC2 access control requirements
+
+AWS / GCP / Azure baseline security standards
+
+DevOps & SRE operational practices
+
+It is suitable for:
+
+Cloud VM provisioning
+
+CI/CD build servers
+
+Bastion hosts
+
+Production Linux servers
+
+Future Architectural Extensions
+
+Multi-factor authentication (MFA)
+
+IP allowlisting
+
+Bastion host integration
+
+Centralized logging and SIEM forwarding
+
+Cloud-init provisioning workflows
+
+Summary
+
+This architecture prioritizes security without sacrificing usability, ensuring administrative access is intentional, auditable, and hardened by default.
+
+It reflects how secure Linux systems are designed and operated in real-world production environments.
