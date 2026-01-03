@@ -22,11 +22,11 @@ It is designed to replace insecure defaults (root login, password authentication
 
 This project demonstrates:
 
-- 🔐 Security-first system design
-- 🛡️ Protection against brute-force attacks
-- 🔑 Proper SSH key management
-- 🚫 Elimination of root-level exposure
-- 🧠 Real-world Linux administration practices
+-  Security-first system design
+-  Protection against brute-force attacks
+-  Proper SSH key management
+-  Elimination of root-level exposure
+-  Real-world Linux administration practices
 
 These are standard requirements in:
 - Cloud infrastructure (AWS, GCP, Azure)
